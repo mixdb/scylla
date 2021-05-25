@@ -33,11 +33,11 @@ if(target_arch)
 endif()
 
 # Configure Seastar compile options to align with Scylla
-set(Seastar_CXX_FLAGS -fcoroutines ${target_arch_flag} CACHE INTERNAL "" FORCE)
-set(Seastar_CXX_DIALECT gnu++20 CACHE INTERNAL "" FORCE)
+#set(Seastar_CXX_FLAGS -fcoroutines ${target_arch_flag} CACHE INTERNAL "" FORCE)
+#set(Seastar_CXX_DIALECT gnu++20 CACHE INTERNAL "" FORCE)
 
-add_subdirectory(seastar)
-add_subdirectory(abseil)
+#add_subdirectory(seastar)
+#add_subdirectory(abseil)
 # Exclude absl::strerror from the default "all" target since it's not
 # used in Scylla build and, moreover, makes use of deprecated glibc APIs,
 # such as sys_nerr, which are not exposed from "stdio.h" since glibc 2.32,
@@ -46,13 +46,13 @@ add_subdirectory(abseil)
 # Need to use the internal "absl_strerror" target name instead of namespaced
 # variant because `set_target_properties` does not understand the latter form,
 # unfortunately.
-set_target_properties(absl_strerror PROPERTIES EXCLUDE_FROM_ALL TRUE)
+#set_target_properties(absl_strerror PROPERTIES EXCLUDE_FROM_ALL TRUE)
 
 # System libraries dependencies
-find_package(Boost COMPONENTS filesystem program_options system thread regex REQUIRED)
-find_package(Lua REQUIRED)
-find_package(ZLIB REQUIRED)
-find_package(ICU COMPONENTS uc REQUIRED)
+#find_package(Boost COMPONENTS filesystem program_options system thread regex REQUIRED)
+#find_package(Lua REQUIRED)
+#find_package(ZLIB REQUIRED)
+#find_package(ICU COMPONENTS uc REQUIRED)
 
 set(scylla_build_dir "${CMAKE_BINARY_DIR}/build/${BUILD_TYPE}")
 set(scylla_gen_build_dir "${scylla_build_dir}/gen")
@@ -159,11 +159,11 @@ foreach(f ${antlr3_grammar_files})
 endforeach()
 
 # Generate C++ sources from ragel grammar files
-seastar_generate_ragel(
-    TARGET scylla_ragel_gen_protocol_parser
-    VAR scylla_ragel_gen_protocol_parser_file
-    IN_FILE redis/protocol_parser.rl
-    OUT_FILE ${scylla_gen_build_dir}/redis/protocol_parser.hh)
+#seastar_generate_ragel(
+#    TARGET scylla_ragel_gen_protocol_parser
+#    VAR scylla_ragel_gen_protocol_parser_file
+#    IN_FILE redis/protocol_parser.rl
+#    OUT_FILE ${scylla_gen_build_dir}/redis/protocol_parser.hh)
 
 # Generate C++ sources from Swagger definitions
 set(swagger_files
@@ -191,11 +191,11 @@ set(swagger_gen_files)
 foreach(f ${swagger_files})
     get_filename_component(fname "${f}" NAME_WE)
     get_filename_component(dir "${f}" DIRECTORY)
-    seastar_generate_swagger(
-        TARGET scylla_swagger_gen_${fname}
-        VAR scylla_swagger_gen_${fname}_files
-        IN_FILE "${f}"
-        OUT_DIR "${scylla_gen_build_dir}/${dir}")
+#    seastar_generate_swagger(
+#        TARGET scylla_swagger_gen_${fname}
+#        VAR scylla_swagger_gen_${fname}_files
+#        IN_FILE "${f}"
+#        OUT_DIR "${scylla_gen_build_dir}/${dir}")
     list(APPEND swagger_gen_files "${scylla_swagger_gen_${fname}_files}")
 endforeach()
 
@@ -411,7 +411,6 @@ set(scylla_sources
     cql3/util.cc
     cql3/values.cc
     cql3/variable_specifications.cc
-    data/cell.cc
     database.cc
     db/batchlog_manager.cc
     db/commitlog/commitlog.cc
@@ -488,7 +487,7 @@ set(scylla_sources
     mutation.cc
     raft/fsm.cc
     raft/log.cc
-    raft/progress.cc
+#    raft/progress.cc
     raft/raft.cc
     raft/server.cc
     mutation_fragment.cc
@@ -529,7 +528,7 @@ set(scylla_sources
     schema_registry.cc
     service/client_state.cc
     service/migration_manager.cc
-    service/migration_task.cc
+#    service/migration_task.cc
     service/misc_services.cc
     service/pager/paging_state.cc
     service/pager/query_pagers.cc
@@ -549,9 +548,9 @@ set(scylla_sources
     sstables/leveled_compaction_strategy.cc
     sstables/m_format_read_helpers.cc
     sstables/metadata_collector.cc
-    sstables/mp_row_consumer.cc
+#    sstables/mp_row_consumer.cc
     sstables/mx/writer.cc
-    sstables/partition.cc
+#    sstables/partition.cc
     sstables/prepended_input_stream.cc
     sstables/random_access_reader.cc
     sstables/size_tiered_compaction_strategy.cc
@@ -645,44 +644,45 @@ add_executable(scylla
     ${scylla_gen_sources})
 
 target_link_libraries(scylla PRIVATE
-    seastar
-    # Boost dependencies
-    Boost::filesystem
-    Boost::program_options
-    Boost::system
-    Boost::thread
-    Boost::regex
-    Boost::headers
-    # Abseil libs
-    absl::hashtablez_sampler
-    absl::raw_hash_set
-    absl::synchronization
-    absl::graphcycles_internal
-    absl::stacktrace
-    absl::symbolize
-    absl::debugging_internal
-    absl::demangle_internal
-    absl::time
-    absl::time_zone
-    absl::int128
-    absl::city
-    absl::hash
-    absl::malloc_internal
-    absl::spinlock_wait
-    absl::base
-    absl::dynamic_annotations
-    absl::raw_logging_internal
-    absl::exponential_biased
-    absl::throw_delegate
-    # System libs
-    ZLIB::ZLIB
-    ICU::uc
-    systemd
-    zstd
-    snappy
-    ${LUA_LIBRARIES}
-    thrift
-    crypt)
+#    seastar
+#    # Boost dependenciesBoost::filesystem
+#    Boost::filesystem
+#    Boost::program_options
+#    Boost::system
+#    Boost::thread
+#    Boost::regex
+#    Boost::headers
+#    # Abseil libs
+#    absl::hashtablez_sampler
+#    absl::raw_hash_set
+#    absl::synchronization
+#    absl::graphcycles_internal
+#    absl::stacktrace
+#    absl::symbolize
+#    absl::debugging_internal
+#    absl::demangle_internal
+#    absl::time
+#    absl::time_zone
+#    absl::int128
+#    absl::city
+#    absl::hash
+#    absl::malloc_internal
+#    absl::spinlock_wait
+#    absl::base
+#    absl::dynamic_annotations
+#    absl::raw_logging_internal
+#    absl::exponential_biased
+#    absl::throw_delegate
+#    # System libs
+#    ZLIB::ZLIB
+#    ICU::uc
+#    systemd
+#    zstd
+#    snappy
+#    ${LUA_LIBRARIES}
+#    thrift
+#    crypt
+        )
 
 target_link_libraries(scylla PRIVATE
     -Wl,--build-id=sha1 # Force SHA1 build-id generation
@@ -691,8 +691,8 @@ target_link_libraries(scylla PRIVATE
 # TODO: patch dynamic linker to match configure.py behavior
 
 target_compile_options(scylla PRIVATE
-    -std=gnu++20
-    -fcoroutines # TODO: Clang does not have this flag, adjust to both variants
+#    -std=gnu++20
+#    -fcoroutines # TODO: Clang does not have this flag, adjust to both variants
     ${target_arch_flag})
 # Hacks needed to expose internal APIs for xxhash dependencies
 target_compile_definitions(scylla PRIVATE XXH_PRIVATE_API HAVE_LZ4_COMPRESS_DEFAULT)
@@ -711,8 +711,8 @@ add_executable(crc_combine_table utils/gz/gen_crc_combine_table.cc)
 target_link_libraries(crc_combine_table PRIVATE seastar)
 target_include_directories(crc_combine_table PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}")
 target_compile_options(crc_combine_table PRIVATE
-    -std=gnu++20
-    -fcoroutines
+#    -std=gnu++20
+#    -fcoroutines
     ${target_arch_flag})
 add_dependencies(scylla crc_combine_table)
 
@@ -730,11 +730,11 @@ if(scylla_version_gen_res)
     message(SEND_ERROR "Version file generation failed. Return code: ${scylla_version_gen_res}")
 endif()
 
-file(READ build/SCYLLA-VERSION-FILE scylla_version)
-string(STRIP "${scylla_version}" scylla_version)
-
-file(READ build/SCYLLA-RELEASE-FILE scylla_release)
-string(STRIP "${scylla_release}" scylla_release)
+#file(READ build/SCYLLA-VERSION-FILE scylla_version)
+#string(STRIP "${scylla_version}" scylla_version)
+#
+#file(READ build/SCYLLA-RELEASE-FILE scylla_release)
+#string(STRIP "${scylla_release}" scylla_release)
 
 get_property(release_cdefs SOURCE "${CMAKE_SOURCE_DIR}/release.cc" PROPERTY COMPILE_DEFINITIONS)
 list(APPEND release_cdefs "SCYLLA_VERSION=\"${scylla_version}\"" "SCYLLA_RELEASE=\"${scylla_release}\"")

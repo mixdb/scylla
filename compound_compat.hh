@@ -45,7 +45,7 @@ extern logging::logger compound_logger;
 //
 //  <value> is component's value in serialized form. <EOC> is always 0 for partition key.
 //
-
+//
 // Given a representation serialized using @CompoundType, provides a view on the
 // representation of the same components as they would be serialized by Origin.
 //

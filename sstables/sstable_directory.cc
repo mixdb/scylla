@@ -177,6 +177,21 @@ sstable_directory::process_sstable_dir(const ::io_priority_class& iop, bool sort
     //   to make sure they all update their own version of scan_state and then merge it.
     // - If all shards scan in parallel, they can start loading sooner. That is faster than having
     //   a separate step to fetch all files, followed by another step to distribute and process.
+    /**
+     *
+     * 每个分片都重复此扫描似乎很浪费，在某种程度上确实如此。
+       但是，我们仍然想打开文件，特别是在分布式中调用 process_dir()时
+       尚不要超载任何碎片。同样在常见情况下，SSTables 都将是
+       未共享并根据其代号位于正确的分片上。有鉴于此
+       让每个分片重复目录列表的两个优点：
+
+     - 目录列表部分已经与 scan_state 内的 data_structures 交互。我们
+       要么必须在分片之间传输大量文件信息，要么使代码复杂化
+       确保他们都更新自己的 scan_state 版本，然后合并它。
+     - 如果所有分片并行扫描，它们可以更快地开始加载。这比拥有更快
+       获取所有文件的单独步骤，然后是分发和处理的另一个步骤。
+     *
+     * */
     return do_with(scan_state{}, [this, sort_sstables_according_to_owner, &iop] (scan_state& state) {
         return lister::scan_dir(_sstable_dir, { directory_entry_type::regular },
                 [this, sort_sstables_according_to_owner, &state] (fs::path parent_dir, directory_entry de) {
@@ -401,6 +416,9 @@ sstable_directory::reshard(sstable_info_vector shared_info, compaction_manager& 
             // There is a semaphore inside the compaction manager in run_resharding_jobs. So we
             // parallel_for_each so the statistics about pending jobs are updated to reflect all
             // jobs. But only one will run in parallel at a time
+            // run_resharding_jobs 中的压缩管理器中有一个信号量。所以我们
+            // arallel_for_each 以便更新有关待处理作业的统计信息以反映所有
+            // 任务。但一次只有一个并行运行
             return parallel_for_each(buckets, [this, iop, &cm, &table, creator = std::move(creator)] (std::vector<sstables::shared_sstable>& sstlist) mutable {
                 return cm.run_custom_job(&table, "resharding", [this, iop, &cm, &table, creator, &sstlist] () {
                     sstables::compaction_descriptor desc(sstlist, {}, iop);

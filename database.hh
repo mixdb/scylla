@@ -152,6 +152,24 @@ class memtable_list;
 //
 // If we are going to have different methods, better have different instances
 // of a common class.
+//我们可以将所有内存表（无论类型如何）添加到一个列表中，然后
+// 然后在我们阅读它们时将它们过滤掉。这就是我选择不做的原因
+// 它：
+//
+// 首先，涉及到内存表的一些方法（如密封）是
+// 假设一个提交日志，并非常小心地更新重放
+// 位置，刷新日志等。我们想绕过这些，那必须
+// 可以通过用条件喷洒密封代码来完成，或者有一个
+// 每个密封的单独方法。
+//
+// 此外，如果我们想将一些内存表作为单独的分配器
+// 区域组以提供额外的 QoS，正确包装类
+// 将使这变得微不足道：只需传递一个 new_memtable() 版本
+// 在不同的地区，而列表方法需要很多
+// 条件也是如此。
+//
+// 如果我们要使用不同的方法，最好使用不同的实例
+// 属于普通类。
 class memtable_list {
 public:
     using seal_immediate_fn_type = std::function<future<> (flush_permit&&)>;

@@ -531,6 +531,8 @@ public:
     * across all replicas. This method will take care
     * of the possibility of a replica being down and hint
     * the data across to some other replica.
+     使用此方法应用这些突变跨所有副本。这个方法会照顾复制品的可能性和提示
+     将数据传输到其他某个副本。
     *
     * @param mutations the mutations to be applied across the replicas
     * @param consistency_level the consistency level for the operation

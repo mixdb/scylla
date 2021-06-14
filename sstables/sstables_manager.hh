@@ -65,7 +65,16 @@ private:
     // in the cluster support a newer format, _sstables_format will be set to
     // that format. read_sstables_format() also overwrites _sstables_format
     // if an sstable format was chosen earlier (and this choice was persisted
-    // in the system table).
+    // in the system table)._sstables_format
+
+    // 是用于编写新 sstables 的格式。
+    // 这里我们设置了它的默认值，但是如果我们发现所有的节点
+    // 在集群中支持更新的格式，_sstables_format 将设置为
+    // 那种格式。 read_sstables_format() 也会覆盖 _sstables_format
+    // 如果之前选择了 sstable 格式（并且此选择被保留）
+    // 在系统表中）。
+
+
     sstable_version_types _format = sstable_version_types::mc;
 
     list_type _active;
@@ -99,7 +108,14 @@ public:
     //   - all memory resources are freed
     //
     // Note that close() will not complete until all references to all
-    // sstables have been destroyed.
+    // sstables have been destroyed.等到此
+    // sstables_manager 实例管理的所有 sstables
+    // (之前由 make_sstable() 创建）已被处理：
+    //       - 如果它们被标记为删除，文件将被删除
+    //       - 在任何情况下，打开的文件句柄都关闭
+    //       - 释放所有内存资源
+    // 请注意，close() 将不会完成，直到所有对 all 的引用
+    // sstables 已被破坏。
     future<> close();
 private:
     void add(sstable* sst);

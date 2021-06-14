@@ -122,6 +122,21 @@ private:
 //
 // Keeping a static part for the backlog complicates the code significantly, though, so this will
 // be left for a future optimization.
+//
+// 压缩积压的全系统管理器。
+//
+// 积压的数量与列族的数量相同，可能非常高。
+// 作为一种优化，我们可以将没有发生任何变化的列族保留在一个特殊的
+// list 并且只迭代那些正在改变的。
+//
+// 然而，积压的计算并不那么昂贵：我已经对成本进行了基准测试
+// 将 3500 个列族的积压计算到小于 200 微秒，这只是
+// 定期请求，持续数百毫秒的相对较长的时间。
+//
+// 但是，为 backlog 保留一个静态部分会使代码显着复杂化，因此这将
+// 留待以后优化。
+
+
 class compaction_backlog_manager {
     std::unordered_set<compaction_backlog_tracker*> _backlog_trackers;
     void remove_backlog_tracker(compaction_backlog_tracker* tracker);

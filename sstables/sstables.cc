@@ -2297,12 +2297,22 @@ future<> sstable::mutate_sstable_level(uint32_t new_level) {
     // Technically we don't have to write the whole file again. But the assumption that
     // we will always write sequentially is a powerful one, and this does not merit an
     // exception.
+    /**
+     * 从技术上讲，我们不必再次写入整个文件。但假设我们将始终按顺序编写是一个强大的，这不值得例外。
+     * */
     return seastar::async([this] {
         // This is not part of the standard memtable flush path, but there is no reason
         // to come up with a class just for that. It is used by the snapshot/restore mechanism
         // which comprises mostly hard link creation and this operation at the end + this operation,
         // and also (eventually) by some compaction strategy. In any of the cases, it won't be high
         // priority enough so we will use the default priority
+        /**
+         * 这不是标准内存表刷新路径的一部分，但没有理由
+         * 想出一个class。它被快照恢复机制使用
+         * 其中主要包括硬链接创建和最后的这个操作+这个操作，
+         * 并且（最终）通过一些压缩策略。在任何一种情况下，它都不会高
+         * 优先级足够，所以我们将使用默认优先级
+         */
         rewrite_statistics(default_priority_class());
     });
 }

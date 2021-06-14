@@ -67,6 +67,15 @@ enum class read_status { ready, waiting };
 // When the final state is reached, the value can be collected from
 // the member field designated by the read method as the holder for
 // the result.
+// 原始数据类型的增量解析器。
+//
+// 解析器首先被编程为使用以下命令读取特定数据类型
+// read_() 方法之一并用缓冲区馈送，直到达到
+// 它的最终状态。
+// 当达到最终状态时，可以从
+// 由 read 方法指定为持有者的成员字段
+// 结果。
+
 //
 // Example usage:
 //

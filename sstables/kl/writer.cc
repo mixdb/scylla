@@ -84,6 +84,16 @@ static void output_promoted_index_entry(bytes_ostream& promoted_index,
 // end of the block. For this we would need this function to take rvalue
 // references (so data is moved in), and need not to use vector of byte_view
 // (which might be gone later).
+/**
+ * 在将给定的 sstable 原子写入到输出。这可能会启动一个新的提升索引块，具体取决于多少
+ 自当前块开始以来我们已经写入的数据。开始一个新块包括将旧块的范围输出到index 文件，
+ 并再次输出当前打开的范围墓碑到数据文件。
+ TODO：目前，maybe_flush_pi_block 序列化每个调用，
+ 将其保存在我们需要关闭的 _pi_write.block_last_colname 中每个块，
+ 以及关闭最后一个块。我们可以改为保存只是未处理的参数，并仅在需要时将它们序列化
+ 块的结尾。为此，我们需要这个函数来取右值引用（因此数据被移入），并且不需要使用 byte_view 的向量
+ （稍后可能会消失）。
+ * */
 void sstable_writer_k_l::maybe_flush_pi_block(file_writer& out,
         const composite& clustering_key,
         const std::vector<bytes_view>& column_names,
@@ -504,6 +514,12 @@ void sstable_writer_k_l::consume_new_partition(const dht::decorated_key& dk) {
     // Write an index entry minus the "promoted index" (sample of columns)
     // part. We can only write that after processing the entire partition
     // and collecting the sample of columns.
+    /**
+     * 将分区键的索引文件条目写入索引文件。
+     * 写一个索引条目减去“提升索引”（列样本）
+     * 部分。我们只能在处理整个分区后写
+     * 并收集列样本。
+     * */
     write_index_header(_sst.get_version(), *_index, p_key, _writer->offset());
     _pi_write.data = {};
     _pi_write.numblocks = 0;

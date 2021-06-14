@@ -100,6 +100,18 @@ namespace sstables {
     // If descriptor.cleanup is true, mutation that doesn't belong to current node will be
     // cleaned up, log messages will inform the user that compact_sstables runs for
     // cleaning operation, and compaction history will not be updated.
+    // 将 N 个 sstables 的列表压缩为 M 个 sstables。
+    //返回有关已完成压缩的信息，其中包括新 sstables 的向量。
+    // Creator 用于为将要写入的新 sstable 获取 sstable 对象。
+    // replacer 将用列族中的新 sstable 替换旧的 sstable。
+    // max_sstable_size 是要生成的 sstable 的宽松限制大小。
+    // 示例：新的 sstable 的大小可以超过 max_sstable_size
+    // 写入最后一个分区时。
+    // sstable_level 将是此函数要创建的 sstable(s) 的级别。
+    // 如果descriptor.cleanup 为真，不属于当前节点的变异将是
+    // 清理后，日志消息将通知用户 compact_sstables 运行
+    // 清理操作，并且压实历史不会更新。
+
     future<compaction_info> compact_sstables(sstables::compaction_descriptor descriptor, column_family& cf);
 
     // Return list of expired sstables for column family cf.
@@ -107,6 +119,13 @@ namespace sstables {
     // max timestamp is lower than any other relevant sstable.
     // In simpler words, a sstable is fully expired if all of its live cells with TTL is expired
     // and possibly doesn't contain any tombstone that covers cells in other sstables.
+    //
+    // 返回列族 cf 的过期 sstable 列表。
+    // 如果 sstable 的 max_local_deletion_time 先于 gc_before 和它的
+    // 最大时间戳低于任何其他相关的 sstable。
+    // 简而言之，如果 sstable 的所有具有 TTL 的活单元都已过期，则 sstable 将完全过期
+    // 并且可能不包含任何覆盖其他 sstable 中的单元格的墓碑。
+
     std::unordered_set<sstables::shared_sstable>
     get_fully_expired_sstables(column_family& cf, const std::vector<sstables::shared_sstable>& compacting, gc_clock::time_point gc_before);
 

@@ -74,6 +74,11 @@ bool compaction_strategy_impl::worth_dropping_tombstones(const shared_sstable& s
     // that expired tombstones still cover old data and thus cannot be removed.
     // We want to avoid a compaction loop here on the same data by considering
     // only old enough sstables.
+
+    // 忽略最近创建的 sstables，因为有机会
+    // 过期的墓碑仍然覆盖旧数据，因此无法删除。
+    // 我们希望通过考虑在相同数据上避免压缩循环
+    // 只有足够老的 sstables。
     if (db_clock::now()-_tombstone_compaction_interval < sst->data_file_write_time()) {
         return false;
     }

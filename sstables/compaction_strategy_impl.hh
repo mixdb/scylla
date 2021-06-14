@@ -74,6 +74,8 @@ public:
 
     // Check if a given sstable is entitled for tombstone compaction based on its
     // droppable tombstone histogram and gc_before.
+    // 检查给定的 sstable 是否有权根据其进行墓碑压缩
+    // 可丢弃的墓碑直方图和 gc_before。
     bool worth_dropping_tombstones(const shared_sstable& sst, gc_clock::time_point gc_before);
 
     virtual compaction_backlog_tracker& get_backlog_tracker() = 0;

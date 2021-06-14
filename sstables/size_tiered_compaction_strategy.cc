@@ -181,6 +181,10 @@ size_tiered_compaction_strategy::get_sstables_for_compaction(column_family& cfs,
     // ratio is greater than threshold.
     // prefer oldest sstables from biggest size tiers because they will be easier to satisfy conditions for
     // tombstone purge, i.e. less likely to shadow even older data.
+    // 如果没有以标准方式压缩的 sstable，请尝试压缩其可放置墓碑的单个 sstable 比率大于阈值。
+    // 更喜欢最大尺寸层中最旧的 sstables，因为它们更容易满足条件
+    // 墓碑清除，即不太可能隐藏更旧的数据。
+
     for (auto&& sstables : buckets | boost::adaptors::reversed) {
         // filter out sstables which droppable tombstone ratio isn't greater than the defined threshold.
         auto e = boost::range::remove_if(sstables, [this, &gc_before] (const sstables::shared_sstable& sst) -> bool {

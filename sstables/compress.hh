@@ -87,6 +87,16 @@ struct compression {
     // perfectly valid as well.
     // * The iterator and at() can't provide references to the elements.
     // * No point insert is available.
+    /**
+     *   为了减少compression-info的内存占用，n个偏移量被组合成段，
+     *   其中每个段将一个基本绝对偏移量存储到文件中，段中的其他偏移量是相对偏移量（因此减小了大小）。
+     *   此外，偏移量只分配了足够的位来存储它们的最大值。因此，偏移量被打包在一个缓冲区中，
+     *   如下所示： arrrarrrarrr... 其中 n 是 4，a 是绝对偏移量，r 是相对于 a 的偏移量。
+     *   段存储在桶中，其中每个桶都有自己的基本偏移量。存储桶中的段经过优化，
+     *   以针对给定的块大小和存储桶大小处理尽可能大的数据块。这不是通用容器。
+     *   有限制： 在调用 init() 之前不能使用。 at() 最好是增量调用，尽管随机查找也是完全有效的。
+     *   迭代器和 at() 不能提供对元素的引用。没有点插入可用。
+     * */
     class segmented_offsets {
     public:
         class state {
@@ -382,6 +392,14 @@ compressor_ptr get_sstable_compressor(const compression&);
 // are open streams on it. This should happen naturally on a higher level -
 // as long as we have *sstables* work in progress, we need to keep the whole
 // sstable alive, and the compression metadata is only a part of it.
+
+/*
+ * 注意：compression_metadata 是通过引用传递的；来电者是
+ 负责保持compression_metadata存活，只要有
+ 是开放的溪流。这应该在更高的层次上自然发生——
+ 只要我们有 sstables 工作正在进行中，我们就需要保持整体
+ sstable 还活着，压缩元数据只是其中的一部分。
+ * */
 input_stream<char> make_compressed_file_k_l_format_input_stream(file f,
                 sstables::compression* cm, uint64_t offset, size_t len,
                 class file_input_stream_options options);

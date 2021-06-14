@@ -80,6 +80,8 @@ private:
 
     // prevents an object that respects a phaser (usually a table) from disappearing in the middle of the operation.
     // Will be destroyed when this object is destroyed.
+    // 防止尊重移相器（通常是桌子）的对象在操作过程中消失。
+    //  当这个对象被销毁时将被销毁。
     std::optional<utils::phased_barrier::operation> _operation_barrier;
 
     std::filesystem::path _sstable_dir;
@@ -111,6 +113,11 @@ private:
     //
     // The indexes of the outer vector represent the shards. Having anything in the index
     // representing this shard is illegal.
+    //     未共享且属于外部分片的 SSTable。因为它们更方便
+    //     存储为 foreign_sstable_open_info 对象，它们位于与
+    //     本地 SSTable。
+    //     外部向量的索引代表分片。索引中有任何内容
+    //     代表这个分片是非法的。
     std::vector<sstable_info_vector> _unshared_remote_sstables;
 
     // SSTables that are shared. Stored as foreign_sstable_open_info objects. Reason is those are
@@ -167,6 +174,18 @@ public:
     // This function doesn't change on-storage state. If files are to be removed, a separate call
     // (commit_file_removals()) has to be issued. This is to make sure that all instances of this
     // class in a sharded service have the opportunity to validate its files.
+    //     扫描包含 SSTables 的目录。被认为属于这一代的每一代人
+    //     分片被处理，没有的被跳过。潜在的相关性被确定为
+    //     生成 % smp::count。
+    //
+    //     一旦此方法返回，此分片处理的每个 SSTable 都可以处于 3 种状态之一：
+    //      - unshared, local：不是共享的 SSTable，确实属于这个分片。
+    //      - unshared, remote：不是共享SSTable，而是属于远程分片。
+    //      - shared : 属于许多分片的共享SSTable。使用前必须重新分片
+    //
+    //     此功能不会更改存储状态。如果要删除文件，则单独调用
+    //     (commit_file_removals()) 必须发出。这是为了确保此的所有实例
+    //     分片服务中的类有机会验证其文件。
     future<> process_sstable_dir(const ::io_priority_class& iop, bool sort_sstables_according_to_owner = true);
 
     // Sort the sstable according to owner
@@ -185,6 +204,18 @@ public:
     //
     // A creator function must be passed that will create an SSTable object in the correct shard,
     // and an I/O priority must be specified.
+    // 重新分片 SSTable 的集合。
+    //
+    // 必须传递对压缩管理器的引用，以便我们可以注册它。会心
+    // 正在处理哪个表是压缩管理器的要求，所以这必须是
+    // 也通过了。
+    //
+    // 我们将立即重新分片 max_sstables_per_job。
+    //
+    // 必须传递一个创建者函数，它将在正确的分片中创建一个 SSTable 对象，
+    // 并且必须指定 IO 优先级。
+
+
     future<> reshard(sstable_info_vector info, compaction_manager& cm, table& table,
                      unsigned max_sstables_per_job, sstables::compaction_sstable_creator_fn creator,
                      const ::io_priority_class& iop);

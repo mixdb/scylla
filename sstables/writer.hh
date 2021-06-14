@@ -496,6 +496,8 @@ void write_compound_non_dense_column_name(sstable_version_types v, Writer& out, 
     // with the marker. If the component however it is not empty, then the
     // marker should be in the end of it, and we just join them together as we
     // do for any normal component
+    // 所以如果最后一个组件是空的（IOW，只序列化到标记），那么我们只需用标记替换键的最后一个字节。
+    // 如果组件不是空的，那么标记应该在它的末尾，我们就像对任何普通组件一样将它们连在一起
     if (c.size() == 1) {
         if (ck_bview.empty()) {
             throw std::runtime_error("Open-ended range tombstones are not allowed in LA/KA SSTables.");

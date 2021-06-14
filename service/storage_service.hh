@@ -149,6 +149,10 @@ public:
  * on the identifier space. This token gets gossiped around.
  * This class will also maintain histograms of the load information
  * of other nodes in the cluster.
+ * 此抽象包含此节点的令牌标识符
+  在标识符空间上。这个令牌被八卦了。
+  该类还将维护负载信息的直方图
+  集群中的其他节点。
  */
 class storage_service : public service::migration_listener, public gms::i_endpoint_state_change_subscriber,
         public seastar::async_sharded_service<storage_service>, public seastar::peering_sharded_service<storage_service> {
